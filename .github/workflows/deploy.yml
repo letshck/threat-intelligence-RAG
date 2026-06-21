@@ -19,5 +19,6 @@ jobs:
             cd ~/threat-intelligence-RAG
             git pull origin main
             docker stop $(docker ps -q --filter ancestor=threat-rag-api) || true
+            docker system prune -af
             docker build -t threat-rag-api .
             docker run -d -p 8000:8000 threat-rag-api
