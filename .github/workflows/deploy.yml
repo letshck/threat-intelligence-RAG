@@ -1,0 +1,23 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into EC2 and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/threat-intelligence-RAG
+            git pull origin main
+            docker stop $(docker ps -q --filter ancestor=threat-rag-api) || true
+            docker build -t threat-rag-api .
+            docker run -d -p 8000:8000 threat-rag-api
